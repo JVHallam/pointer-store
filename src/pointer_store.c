@@ -96,6 +96,7 @@ int length(STORE_HANDLE* store){
 int stow(STORE_HANDLE* store, void* valuePointer){
     int wasSuccessful = 0;
     node* nextNode = newNode();
+
     if(nextNode){
         nextNode->value = valuePointer;
         nextNode->next = store->head;
@@ -127,6 +128,34 @@ void* skim(STORE_HANDLE* store){
     //If after the reduction, the head is now null.
     if(!(store->head)){
         store->tail = NULL;
+    }
+    
+    return valuePointer;
+}
+
+void forEach(STORE_HANDLE* store, void(*myFunction)(void*)){
+    if(myFunction && store->head){
+        for(node* walker = store->head; walker; walker = walker->next){
+            myFunction(walker->value);
+        }
+    }
+}
+
+/*
+    You can't negative index the list.
+    It's final index is also store->length - 1;
+*/
+void* getIndex(STORE_HANDLE* store, int index){
+    void* valuePointer = 0;
+
+    if( (index >= 0) && (index < store->length)){
+        node* walker = store->head;
+
+        for(int indexTracker = 0; indexTracker != index; ++indexTracker){
+            walker = walker->next;
+        }
+        
+        valuePointer = walker->value;
     }
     
     return valuePointer;

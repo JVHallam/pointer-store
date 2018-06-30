@@ -2,21 +2,22 @@
 #include <stdlib.h>
 #include <pointer_store.h>
 
+void myFunction(void* valuePointer){
+    int value = *((int*)valuePointer);
+
+    printf("Value : %i\n", value);
+}
+
 int main(void){
     STORE_HANDLE* handle = create();
 
-    int MaxCycles = 5;
-
-    for(int i = 0; i < MaxCycles; ++i){
-        int* value = (int*)malloc(sizeof(int));
-        (*value) = i;
-        push(handle, value);
+    for(int i = 0; i < 10; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        push(handle, valuePointer);
     }
 
-    for(int i = MaxCycles - 1; i; --i){
-        int* value = (int*)pop(handle);
-        printf("Value : %i\n", *value);
-    }
+    forEach(handle, &myFunction);
 
     return 0;
 }

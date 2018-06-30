@@ -327,11 +327,110 @@ TEST(STORE_HANDLE, push_pop_stow_skim){
 
             EXPECT_EQ(expectedValue, *value);
         }
-        
+
         currentLength = length(store);
         EXPECT_EQ(currentLength, 0);
     }
 
+    cleanup(store, &free);
+}
+
+void forEachTestFunction(void* valuePointer){
+    *((int*)valuePointer) *= 2;
+}
+
+TEST(STORE_HANDLE, forEach){
+    STORE_HANDLE* store = create();
+
+    for(int i = 0; i < 100; ++i){
+        int* value = (int*)malloc(sizeof(int));
+        *value = i;
+        push(store, value);
+    }
+
+    //This function doubles the value pointed to by each pointer.
+    forEach(store, &forEachTestFunction);
+
+    for(int i = 0; i < 100; ++i){
+        int* valuePointer = (int*)skim(store);
+        int value = *valuePointer;
+
+        EXPECT_EQ(value, i * 2);
+
+        free(valuePointer);
+    }
+
+    cleanup(store, &free);
+}
+
+//Now there's indexing.
+TEST(STORE_HANDLE, indexing){
+    STORE_HANDLE* store = create();
+
+    //Create the large list
+    for(int i = 0; i < 100; ++i){
+        void* valuePointer = malloc(sizeof(int));
+        *((int*)valuePointer) = i;
+
+        push(store, valuePointer);
+    }
+
+    //Get the values, making sure that it doesn't alter the list.
+    for(int i = 0; i < 100; ++i){
+        void* valuePointer = getIndex(store, i);
+        int value = *((int*)valuePointer);
+
+        EXPECT_EQ(value, i);
+    }
+
+    int expectedLength = 100;
+    int actualLength = length(store);
+    EXPECT_EQ(expectedLength, actualLength);
+
+    //Check everything is still in the list.
+    for(int i = 0; i < 100; ++i){
+        void* valuePointer = skim(store);
+        int value = *((int*)valuePointer);
+
+        EXPECT_EQ(value, i);
+        free(valuePointer);
+    }
+
+    cleanup(store, &free);
+}
+
+//Check that we can't get anything outside of the list.
+/*
+    That means:
+        Any negatives
+
+        Anything larger than the list length
+*/
+TEST(STORE_HANDLE, outOfRangeHandling){
+    STORE_HANDLE* store = create();
+
+    //Check we can't get anything from the empty list
+    void* indexedPointer = getIndex(store, 0);
+    void* nullPointer = 0;
+    EXPECT_EQ(indexedPointer, nullPointer);
+
+    //Make a list
+    for(int i = 0; i < 100; ++i){
+        int* valuePointer = (int*)(malloc(sizeof(int)));
+        *valuePointer = i;
+        push(store, valuePointer);
+    }
+
+    //Now, check you can't negative index it.
+    indexedPointer = getIndex(store, -1);
+    EXPECT_EQ(indexedPointer, nullPointer);
+
+    //Now check you can't go over
+    //Baring in mind this is zero indexed.
+    indexedPointer = getIndex(store, 100);
+    EXPECT_EQ(indexedPointer, nullPointer);
+
+    //Fin
     cleanup(store, &free);
 }
 

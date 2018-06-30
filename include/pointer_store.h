@@ -25,39 +25,63 @@ STORE_HANDLE* create();
 
 //Insert an item at the end of the store.
 //return 1 if successful, else return 0.
-int push(STORE_HANDLE*, void*);
+int push(STORE_HANDLE* store, void* valuePointer);
 
 //Remove the last element in the store.
-void* pop(STORE_HANDLE*);
+void* pop(STORE_HANDLE* store);
 
 //Insert as the first item in the store
 //return 1 if successful, else return 0.
-int stow(STORE_HANDLE*, void*);
+int stow(STORE_HANDLE* store, void* valuePointer);
 
 //Remove the first item from the store
-void* skim(STORE_HANDLE*);
+void* skim(STORE_HANDLE* store);
 
 //=============================================================================================
 //Functions for getting descriptions of the handle.
-int length(STORE_HANDLE*);
+int length(STORE_HANDLE* store);
+
+//=============================================================================================
+//Functions that manipulate the list:
+
+//Get the value at an index.
+void* getIndex(STORE_HANDLE* store, int wantedIndex);
+
+//Takes a pointer to your store and a function that looks like:
+//void yourFunction(void* listItem);
+//Your function will be called with every item in the list.
+void forEach(STORE_HANDLE* store, void(*yourFunction)(void*));
 
 /*
-    Functions that are needed:
+    Functions that are needed in order of priority:
+        Get pointer at index
+
+        forEach
+            important atm, as indexing isn't as intuitive as when using an array.
+
+    Functions i really want, but aren't super useful atm:
+
+        CastToArray
+            Top of the list.
+
+        filter
+            Are we copying the filtered result into another list
+
+        reduce
+            Are we reducing and discarding the list?
+
+        Map / Transform
+            Are we mapping onto ourselves, or another list?
+            If we have forEach, we kinda have this already.
+            Which bumps it way down.
+
+    Functions that might be nice later:
+
         Copy value at index
 
         Insert at index
 
         slicing
-
-        Map / Transform
-
-        forEach
-
-        filter
-
-        reduce
-
-        CastToArray
 */
 
 #endif
