@@ -246,19 +246,93 @@ TEST(pointer_store, stowing_and_skimming){
 }
 
 TEST(STORE_HANDLE, push_pop_stow_skim){
-    /*
-        Test all 4 functions.
+    STORE_HANDLE* store = create(); 
+    for(int itterations = 0; itterations < 5; ++itterations){
+        for(int i = 0; i < 4; ++i){
+            void* currentValue = malloc(sizeof(int));
+            push(store, currentValue);
+        }
 
-        push a list
+        for(int i = 0; i < 4; ++i){
+            free(pop(store));
+        }
 
-        Then pop it to zero
+        for(int i = 0; i < 4; ++i){
+           void* currentValue = malloc(sizeof(int));
+           stow(store, currentValue);
+        }
 
-        stow a list
+        for(int i = 0; i < 4; ++i){
+           free(skim(store));
+        }
 
-        then skim it to zero
+        //Now that we've shaken up the list, to make sure it works.
+        //STOW, PUSH 5 values then pop them all off.
+        for(int i = 0; i < 5; ++i){
+            int* pushValuePointer = (int*)malloc(sizeof(int));
+            int* stowValuePointer = (int*)malloc(sizeof(int));
 
-        Repeat. The act of passing between the 2 may cause issues.
-    */  
+            *pushValuePointer = *stowValuePointer = i;
+            push(store, pushValuePointer);
+            stow(store, stowValuePointer);
+        }
+
+        //The length of the list should now be 10.
+        int currentLength = length(store);
+        EXPECT_EQ(currentLength, 10);
+
+        for(int i = 0; i < currentLength; ++i){
+            int* value = (int*)pop(store);
+            int expectedValue = 0;
+
+            //The values should 4,3,2,1,0,0,1,2,3,4
+            if(i < 5){
+                expectedValue = 4 - i;
+            }
+            else{
+                expectedValue = i - 5;
+            }
+
+            EXPECT_EQ(expectedValue, *value);
+        }
+        //length should now be zero
+        currentLength = length(store);
+        EXPECT_EQ(currentLength, 0);
+
+        //Then STOW, PUSH 5 more value, then skim them all off.
+        for(int i = 0; i < 5; ++i){
+            int* pushValuePointer = (int*)malloc(sizeof(int));
+            int* stowValuePointer = (int*)malloc(sizeof(int));
+
+            *pushValuePointer = *stowValuePointer = i;
+            push(store, pushValuePointer);
+            stow(store, stowValuePointer);
+        }
+
+        //The length of the list should now be 10.
+        currentLength = length(store);
+        EXPECT_EQ(currentLength, 10);
+
+        for(int i = 0; i < currentLength; ++i){
+            int* value = (int*)skim(store);
+            int expectedValue = 0;
+
+            //The values should 4,3,2,1,0,0,1,2,3,4
+            if(i < 5){
+                expectedValue = 4 - i;
+            }
+            else{
+                expectedValue = i - 5;
+            }
+
+            EXPECT_EQ(expectedValue, *value);
+        }
+        
+        currentLength = length(store);
+        EXPECT_EQ(currentLength, 0);
+    }
+
+    cleanup(store, &free);
 }
 
 int main(int argc, char** argv){
