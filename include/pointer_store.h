@@ -59,6 +59,28 @@ void forEach(STORE_HANDLE* store, void(*yourFunction)(void*, void*), void* yourV
 /*
 These are ultimately the last 2 functions that i would need to deem this lib complete.
 Anything else is just quality of life. Anything else can easily be done.
+    Ordered Insert:
+        I'm going to want to insert values, into locations, based on their values.
+
+        If i have a list:
+            1, 2, 4, 6, 8, 9, 10;
+
+        I want it to insert 3, before 4 and after 2.
+
+        We'll probably need something that takes a comparison function:
+
+        orderedInsert(list, value, comparisonFunction);
+
+        bool shouldBeInsertedBefore(void* listValue, void* yourValue){
+            if the list Value is larger (or should come later) than your value,
+            return true.
+
+            if the list value is smaller, return false.
+        }
+
+        This is an essential function to implement. It also allows for insertion sorting by the user.
+        A combination between this and forEach means that we can implement an insertion sort quite easily.
+
     Insert at index
         This can be added without much hassle
 

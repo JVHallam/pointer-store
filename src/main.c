@@ -1,39 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pointer_store.h>
+#include <string.h>
 
-void copyOverEvens(void* valuePointer, void* secondListPointer){
-    int value = *((int*)valuePointer);
-
-    if(value % 2 == 0){
-        int* copiedPointer = malloc(sizeof(int));
-        *copiedPointer = value;
-        push((STORE_HANDLE*) secondListPointer, copiedPointer);
-    }
-}
-
-void printValue(void* valuePointer, void* notNeeded){
-    int value = *((int*)valuePointer);
-
-    printf("Value : %i\n", value);
+void combineStrings(void* firstValue, void* myValue){
+    
 }
 
 int main(void){
     STORE_HANDLE* handle = create();
 
-    for(int i = 0; i < 20; ++i){
-        int* valuePointer = malloc(sizeof(int));
-        *valuePointer = i;
-        push(handle, valuePointer);
-    }
+    push(handle, "This");
+    push(handle, "Is");
+    push(handle, "Not");
+    push(handle, "My");
+    push(handle, "Idea");
+    push(handle, "Of");
+    push(handle, "A");
+    push(handle, "Good");
+    push(handle, "Time");
 
-    STORE_HANDLE* secondHandle = create();
+    char* combinedString  = 0;
 
-    forEach(handle, &copyOverEvens, secondHandle);
-    forEach(secondHandle, &printValue, NULL);
-
-    cleanup(handle, &free);
-    cleanup(secondHandle, &free);
+    forEach(handle, combineStrings, combinedString);
 
     return 0;
 }
