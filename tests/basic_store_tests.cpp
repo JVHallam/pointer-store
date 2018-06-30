@@ -245,6 +245,22 @@ TEST(pointer_store, stowing_and_skimming){
     cleanup(store, NULL);
 }
 
+TEST(STORE_HANDLE, push_pop_stow_skim){
+    /*
+        Test all 4 functions.
+
+        push a list
+
+        Then pop it to zero
+
+        stow a list
+
+        then skim it to zero
+
+        Repeat. The act of passing between the 2 may cause issues.
+    */  
+}
+
 int main(int argc, char** argv){
     testing::InitGoogleTest(&argc, argv);
     int returnCode = RUN_ALL_TESTS();

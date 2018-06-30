@@ -114,21 +114,20 @@ int stow(STORE_HANDLE* store, void* valuePointer){
 void* skim(STORE_HANDLE* store){
     //We need to make the head point 1 past the current head
     void* valuePointer = 0;
-    node* oldHead = store->head;
-
-    //This if and the last one can be combined a little nicer, i think.
-    store->head = (store->head) ? store->head->next : 0;
     
-    if(oldHead){
+    if(store->head){
+        node* oldHead = store->head;
+        store->head = store->head->next;
+
         valuePointer = oldHead->value;
         free(oldHead);
         --(store->length);
     }
 
+    //If after the reduction, the head is now null.
     if(!(store->head)){
         store->tail = NULL;
     }
-    //Then there's the tail. If head's null, tail's null.
     
     return valuePointer;
 }
