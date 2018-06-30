@@ -133,10 +133,10 @@ void* skim(STORE_HANDLE* store){
     return valuePointer;
 }
 
-void forEach(STORE_HANDLE* store, void(*myFunction)(void*)){
+void forEach(STORE_HANDLE* store, void(*myFunction)(void*, void*), void* yourArgument){
     if(myFunction && store->head){
         for(node* walker = store->head; walker; walker = walker->next){
-            myFunction(walker->value);
+            myFunction(walker->value, yourArgument);
         }
     }
 }
@@ -154,7 +154,7 @@ void* getIndex(STORE_HANDLE* store, int index){
         for(int indexTracker = 0; indexTracker != index; ++indexTracker){
             walker = walker->next;
         }
-        
+
         valuePointer = walker->value;
     }
     

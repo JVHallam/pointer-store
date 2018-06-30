@@ -50,25 +50,57 @@ void* getIndex(STORE_HANDLE* store, int wantedIndex);
 //Takes a pointer to your store and a function that looks like:
 //void yourFunction(void* listItem);
 //Your function will be called with every item in the list.
-void forEach(STORE_HANDLE* store, void(*yourFunction)(void*));
+//your Value pointer is a pointer to a value that you'll want passed into the yourFunction
+//Alongside the values from the list.
+//For example, if you wanted to take values from one list and put them in another
+//You'd need to pass that list in as an arg to forEach.
+void forEach(STORE_HANDLE* store, void(*yourFunction)(void*, void*), void* yourValuePointer);
 
 /*
-    Functions that are needed in order of priority:
-        Get pointer at index
+These are ultimately the last 2 functions that i would need to deem this lib complete.
+Anything else is just quality of life. Anything else can easily be done.
+    Insert at index
+        This can be added without much hassle
 
-        forEach
-            important atm, as indexing isn't as intuitive as when using an array.
+    Remove from index
+        Remove a value from an index, shuffle the list to fit.
 
-    Functions i really want, but aren't super useful atm:
+Then there's the world of splitting and joining:
+    Concat(leftList, rightList);
+        An explicit way of doing this will be nice. 
+        Although it would just be a case of:
+            push(a, Skim(b))
 
-        CastToArray
-            Top of the list.
+    Other functions:
+        Due to the fact that forEach is pass by reference and 
+        "Insert at Index" and "Remove from Index" will also exist,
+        The rest of these functions may actually be uneeded in the implementation
+        as of right now.
+
+        They'd just be quality of life functions, rather than essentials.
+
+
+        slicing:
+            This would be a case of splitting the list into 2.
+            The original list, minus the sliced section.
+            It wouldn't be intuitive, so i might give this one a pass.
 
         filter
             Are we copying the filtered result into another list
+            (This can be done with forEach, more or less)
 
         reduce
             Are we reducing and discarding the list?
+            (forEach)
+
+        CastToArray
+            This is going to be awkard, imho.
+            It will create a void* array, or a void** array.
+            Making this function alot less useful.
+
+            And with the fact it's storing void*, if you forget
+            the size of the variables or the vars are mixed, it can lead
+            to some serious issues.
 
         Map / Transform
             Are we mapping onto ourselves, or another list?
@@ -76,12 +108,13 @@ void forEach(STORE_HANDLE* store, void(*yourFunction)(void*));
             Which bumps it way down.
 
     Functions that might be nice later:
-
         Copy value at index
-
-        Insert at index
+            This can be done manually. Doesn't really need a function.
 
         slicing
+            You'll have your own slicing functions at this point.
+            An implementation of this as a single function would be more efficient then the 
+            "Insert at" and "Remove from" functions, but i don't know how i want that implemented yet.
 */
 
 #endif

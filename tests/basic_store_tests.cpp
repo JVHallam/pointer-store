@@ -335,11 +335,11 @@ TEST(STORE_HANDLE, push_pop_stow_skim){
     cleanup(store, &free);
 }
 
-void forEachTestFunction(void* valuePointer){
+void forEachTestFunction(void* valuePointer, void* myValue){
     *((int*)valuePointer) *= 2;
 }
 
-TEST(STORE_HANDLE, forEach){
+TEST(STORE_HANDLE, forEach_without_extra_arg){
     STORE_HANDLE* store = create();
 
     for(int i = 0; i < 100; ++i){
@@ -349,7 +349,7 @@ TEST(STORE_HANDLE, forEach){
     }
 
     //This function doubles the value pointed to by each pointer.
-    forEach(store, &forEachTestFunction);
+    forEach(store, &forEachTestFunction, NULL);
 
     for(int i = 0; i < 100; ++i){
         int* valuePointer = (int*)skim(store);
@@ -358,6 +358,55 @@ TEST(STORE_HANDLE, forEach){
         EXPECT_EQ(value, i * 2);
 
         free(valuePointer);
+    }
+
+    cleanup(store, &free);
+}
+
+//Value pointer being the pointer to the value in the original list
+//secondList being a seperate list entirely.
+void forEachSecondTestFunction(void* valuePointer, void* secondList){
+    int value = *((int*)valuePointer);
+
+    //If it's an even number
+    if(value % 2 == 0){
+        int* copiedValue = (int*)malloc(sizeof(int));
+        *copiedValue = value;
+        push(((STORE_HANDLE*)secondList), copiedValue);
+    }
+}
+
+/*
+    Create a list, from 0 to 99
+
+    if a value is even, copy it into the second list.
+*/
+TEST(STORE_HANDLE, forEach_with_extra_args){
+    STORE_HANDLE* store = create();
+
+    for(int i = 0; i < 100; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+
+        *valuePointer = i;
+
+        push(store, valuePointer);
+    }
+
+    STORE_HANDLE* evenStore = create();
+    forEach(store, &forEachSecondTestFunction, evenStore);
+
+    //Now, check that evenStore contains all even values from 1 to 99
+    int expectedLength = 100 / 2;
+    int actualLength = length(evenStore);
+    EXPECT_EQ(expectedLength, actualLength);
+
+    for(int i = 0; i < 100; i += 2){
+        void* skimmedPointer = skim(evenStore);
+        int skimmedValue = *((int*)skimmedPointer);
+
+        EXPECT_EQ(skimmedValue, i);
+
+        free(skimmedPointer);
     }
 
     cleanup(store, &free);
