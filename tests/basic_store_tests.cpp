@@ -294,6 +294,7 @@ TEST(STORE_HANDLE, push_pop_stow_skim){
             }
 
             EXPECT_EQ(expectedValue, *value);
+            free(value);
         }
         //length should now be zero
         currentLength = length(store);
@@ -326,6 +327,7 @@ TEST(STORE_HANDLE, push_pop_stow_skim){
             }
 
             EXPECT_EQ(expectedValue, *value);
+            free(value);
         }
 
         currentLength = length(store);
@@ -410,6 +412,7 @@ TEST(STORE_HANDLE, forEach_with_extra_args){
     }
 
     cleanup(store, &free);
+    cleanup(evenStore, &free);
 }
 
 //Now there's indexing.
