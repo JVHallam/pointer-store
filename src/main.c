@@ -1,15 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-void test(void(*v)(void*)){
-    //Allocate room for an int on the heap.
-    int* variable = (int*)malloc(sizeof(int));
-    *variable = 101;
-    v(variable);
-}
+#include <pointer_store.h>
 
 int main(void){
-    puts("Hello World");
-    test(&free);
+    STORE_HANDLE* handle = create();
+
+    int MaxCycles = 5;
+
+    for(int i = 0; i < MaxCycles; ++i){
+        int* value = (int*)malloc(sizeof(int));
+        (*value) = i;
+        push(handle, value);
+    }
+
+    for(int i = MaxCycles - 1; i; --i){
+        int* value = (int*)pop(handle);
+        printf("Value : %i\n", *value);
+    }
+
     return 0;
 }

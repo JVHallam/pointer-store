@@ -2,7 +2,7 @@
 #define IMPLEMENTATION_H_
 
 typedef struct node_store{
-    node_store* next;
+    struct node_store* next;
     void* value;
 }node;
 

@@ -1,6 +1,9 @@
 #include <pointer_store.h>
 #include <stdlib.h>
 
+//Remember to remove this.
+#include <stdio.h>
+
 STORE_HANDLE* create(){
     STORE_HANDLE* userHandle = (STORE_HANDLE*)malloc(sizeof(STORE_HANDLE));
 
@@ -15,7 +18,9 @@ STORE_HANDLE* create(){
 void cleanup(STORE_HANDLE* userHandle, void(*your_cleanup_function)(void*)){
     //Go through the list.
     for(node* walker = userHandle->head; walker;){
-        your_cleanup_function(walker->value);
+        if(your_cleanup_function){
+            your_cleanup_function(walker->value);
+        }
         //move walker along
         node* temp = walker;
         walker = walker->next;
@@ -25,22 +30,31 @@ void cleanup(STORE_HANDLE* userHandle, void(*your_cleanup_function)(void*)){
     free(userHandle);
 }
 
-void push(STORE_HANDLE* userHandle, void* newValue){
+int push(STORE_HANDLE* userHandle, void* newValue){
     node* nextNode = newNode();
-    nextNode->value = newValue;
+    int wasSuccessful = 0;
 
-    //Go to the tail.
-    node** tailNode = 0;
+    if(nextNode){
+        nextNode->value = newValue;
 
-    //God damn i love me a bodyless for loop.
-    for(tailNode = &userHandle->tail; *tailNode; tailNode = &((*tailNode)->next));
+        //Go to the tail.
+        node** tailNode = 0;
 
-    //Double check that this works.
-    (*tailNode) = nextNode;
+        //God damn i love me a bodyless for loop.
+        for(tailNode = &userHandle->tail; *tailNode; tailNode = &((*tailNode)->next));
 
-    if(!(userHandle->head)){
-        userHandle->head = userHandle->tail;
+        //Double check that this works.
+        (*tailNode) = nextNode;
+
+        if(!(userHandle->head)){
+            userHandle->head = userHandle->tail;
+        }
+
+        wasSuccessful = 1;
+        ++(userHandle->length);
     }
+
+    return wasSuccessful;
 }
 
 void* pop(STORE_HANDLE* userHandle){
@@ -58,6 +72,7 @@ void* pop(STORE_HANDLE* userHandle){
         returnValue = (*holder)->value;
         free(*holder);
         *holder = 0;
+        --(userHandle->length);
     }
     
     userHandle->tail = (node*)holder;
@@ -72,4 +87,48 @@ node* newNode(){
     userNode->value = 0;
 
     return userNode;
+}
+
+int length(STORE_HANDLE* store){
+    return store->length;
+}
+
+int stow(STORE_HANDLE* store, void* valuePointer){
+    int wasSuccessful = 0;
+    node* nextNode = newNode();
+    if(nextNode){
+        nextNode->value = valuePointer;
+        nextNode->next = store->head;
+        store->head = nextNode;
+
+        if(!(store->tail)){
+            store->tail = store->head;
+        }
+        wasSuccessful = 1;
+        ++(store->length);
+    }
+
+    return wasSuccessful;
+}
+
+void* skim(STORE_HANDLE* store){
+    //We need to make the head point 1 past the current head
+    void* valuePointer = 0;
+    node* oldHead = store->head;
+
+    //This if and the last one can be combined a little nicer, i think.
+    store->head = (store->head) ? store->head->next : 0;
+    
+    if(oldHead){
+        valuePointer = oldHead->value;
+        free(oldHead);
+        --(store->length);
+    }
+
+    if(!(store->head)){
+        store->tail = NULL;
+    }
+    //Then there's the tail. If head's null, tail's null.
+    
+    return valuePointer;
 }

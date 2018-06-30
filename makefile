@@ -13,7 +13,10 @@ testSrc = tests/basic_store_tests.cpp
 libs = $(gtest)/libgtest.a $(gtest)/libgtest_main.a -pthread
 
 main: $(srcFiles)
-	$(CC) $(srcFiles) $(include) -o bin/output;
+	$(CC) $(srcFiles) $(include) -o bin/output $(nonMain);
 
 test: $(testSrc)
 	$(TestCC) $(testSrc) -o bin/test $(libs) $(TestInclude) $(nonMain) $(flags);
+
+clean:
+	rm bin/*

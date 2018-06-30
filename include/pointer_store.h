@@ -24,13 +24,15 @@ STORE_HANDLE* create();
 //Functions for managing the items in the store.
 
 //Insert an item at the end of the store.
-void push(STORE_HANDLE*, void*);
+//return 1 if successful, else return 0.
+int push(STORE_HANDLE*, void*);
 
 //Remove the last element in the store.
 void* pop(STORE_HANDLE*);
 
 //Insert as the first item in the store
-void stow(STORE_HANDLE*, void*);
+//return 1 if successful, else return 0.
+int stow(STORE_HANDLE*, void*);
 
 //Remove the first item from the store
 void* skim(STORE_HANDLE*);
@@ -38,5 +40,24 @@ void* skim(STORE_HANDLE*);
 //=============================================================================================
 //Functions for getting descriptions of the handle.
 int length(STORE_HANDLE*);
+
+/*
+    Functions that are needed:
+        Copy value at index
+
+        Insert at index
+
+        slicing
+
+        Map / Transform
+
+        forEach
+
+        filter
+
+        reduce
+
+        CastToArray
+*/
 
 #endif
