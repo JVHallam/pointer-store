@@ -98,3 +98,12 @@ Goals:
 
         ToArray:
             It'd be nice to be able to cast the item into an array.
+
+Language:
+    An odd thing to think about but i'm trying to minimise the words used in function names.
+    Instead of functions being "verb _ location", i want them to be "verb", or "attribute".
+    Instead of "push_front", "push_back", "pop_front", "pop_back", i've just got:
+    "push", "pop", "stow", "skim".
+
+    push, pop, stow and skim are a little harder to get your head around initially, as they're less
+    descriptive, but i hope to make up in usability what i lose in readability.

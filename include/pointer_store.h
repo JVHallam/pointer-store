@@ -1,26 +1,9 @@
 #ifndef POINTER_STORE_H_
 #define POINTER_STORE_H_
 
-/*
-    What this module should be able to do.
-        STORE_HANDLE* my_handle = create_handle();
-
-        void push(my_handle, void* value);
-
-        void* pop(my_handle);
-
-
-*/
-
-typedef struct{
-    //My handle for future use.
-}pointer_store;
+#include <implementation.h>
 
 #define STORE_HANDLE pointer_store
-
-void push(STORE_HANDLE, void*);
-
-void* pop(STORE_HANDLE);
 
 /*
     when cleanup is called, it will have the function cleanup the structure.
@@ -29,7 +12,31 @@ void* pop(STORE_HANDLE);
     will be passed to your_cleanup_function. There, you will be expected to call any cleanup function you wish.
     If you're just allocating things from the freestore, you can just pass in free, i will understand and
     respect your choice.
+
+    Kill the handle and all memory associated with it. Don't reuse a handle after cleanup.
 */
-void cleanup(STORE_HANDLE, void(*your_cleanup_function)(void*));
+void cleanup(STORE_HANDLE* userHandle, void(*yourCleanupFunction)(void*));
+
+//Create a brand new handle.
+STORE_HANDLE* create();
+
+//=============================================================================================
+//Functions for managing the items in the store.
+
+//Insert an item at the end of the store.
+void push(STORE_HANDLE*, void*);
+
+//Remove the last element in the store.
+void* pop(STORE_HANDLE*);
+
+//Insert as the first item in the store
+void stow(STORE_HANDLE*, void*);
+
+//Remove the first item from the store
+void* skim(STORE_HANDLE*);
+
+//=============================================================================================
+//Functions for getting descriptions of the handle.
+int length(STORE_HANDLE*);
 
 #endif
