@@ -72,10 +72,9 @@ Anything else is just quality of life. Anything else can easily be done.
         orderedInsert(list, value, comparisonFunction);
 
         bool shouldBeInsertedBefore(void* listValue, void* yourValue){
-            if the list Value is larger (or should come later) than your value,
-            return true.
+            if list value is bigger, don't insert, return false.
 
-            if the list value is smaller, return false.
+            if list value is smaller or the same, insert here, return true.
         }
 
         This is an essential function to implement. It also allows for insertion sorting by the user.
