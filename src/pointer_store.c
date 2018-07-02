@@ -160,3 +160,54 @@ void* getIndex(STORE_HANDLE* store, int index){
     
     return valuePointer;
 }
+
+/*
+    Go through the list
+
+    apply ordering function to everything
+        int your_ordering_function(void* currentListValuePointer, void* yourValuePointer);
+
+        returns 1 if the yourValuePointer SHOULD be inserted BEFORE this value.
+
+        returns 0 if the yourValuePointer SHOULD NOT be insert BEFORE this value.
+*/
+int orderedInsert(STORE_HANDLE* store,  int(*orderingFunction)(void*, void*), void* yourValuePointer){
+    int wasSuccessful = 0;
+
+    if(store->head){
+        for(node** walker = &(store->head); (*walker); walker = &((*walker)->next)){
+            //We're walking
+            int shouldValueBeInsertedNow = orderingFunction((*walker)->value, yourValuePointer);
+
+            if(shouldValueBeInsertedNow){
+                node* insertionNode = newNode();
+                if(insertionNode){
+                    insertionNode->value = yourValuePointer;
+
+                    insertionNode->next = (*walker);
+
+                    if((*walker) == store->head){
+                        store->head = insertionNode;
+                    }
+
+                    (*walker) = insertionNode;
+
+                    wasSuccessful = 1;
+                }
+
+                break;
+            }
+        }   
+
+        //Then assume that we never inserted it yet.
+        if(!wasSuccessful){
+            wasSuccessful = push(store, yourValuePointer);
+        }
+    }
+    else{
+        //just insert it at the head
+        wasSuccessful = push(store, yourValuePointer);
+    }
+
+    return wasSuccessful;
+}

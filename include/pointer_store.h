@@ -57,6 +57,37 @@ void* getIndex(STORE_HANDLE* store, int wantedIndex);
 void forEach(STORE_HANDLE* store, void(*yourFunction)(void*, void*), void* yourValuePointer);
 
 /*
+    Returns 1 if successful, 0 otherwise.
+    parameters:
+        You Store handle
+    
+    ordering function
+        int your_ordering_function(void* currentListValuePointer, void* yourValuePointer);
+
+        returns 1 if the yourValuePointer SHOULD be inserted BEFORE this value.
+
+        returns 0 if the yourValuePointer SHOULD NOT be insert BEFORE this value.
+
+    yourValuePointer:
+        The value that you're inserting.
+*/
+int orderedInsert(STORE_HANDLE* store,  int(*orderingFunction)(void*, void*), void* yourValuePointer);
+
+/*
+    insert a value index.
+
+    return int => 1 if successful, 0 otherwise.
+*/
+int insertIndex(STORE_HANDLE* store, void* valuePointer, int index);
+
+/*
+    Remove a value from the index specified.
+    If it's successful, return the value pointer, else return null.
+*/
+void* removeIndex(STORE_HANDLE* store, int index);
+
+
+/*
 These are ultimately the last 2 functions that i would need to deem this lib complete.
 Anything else is just quality of life. Anything else can easily be done.
     Ordered Insert:

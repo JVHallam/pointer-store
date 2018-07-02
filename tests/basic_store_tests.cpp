@@ -486,6 +486,61 @@ TEST(STORE_HANDLE, outOfRangeHandling){
     cleanup(store, &free);
 }
 
+/*
+
+    returns 1 if the yourValuePointer SHOULD be inserted BEFORE this value.
+
+    returns 0 if the yourValuePointer SHOULD NOT be insert BEFORE this value.
+*/
+int myOrderingFunction(void* listValuePointer, void* myValuePointer){
+    //They're both ints.
+    int listValue = *((int*)listValuePointer);
+    int myValue = *((int*)myValuePointer);
+
+    return (myValue < listValue);
+}
+
+TEST(STORE_HANDLE, ordered_insertion){
+    STORE_HANDLE* store = create();
+
+    //insert a bunch of odd values into a list
+    int maxListValue = 10;
+    for(int i = 1; i < maxListValue; i += 2){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        push(store, valuePointer);
+    }
+
+    //Now, ordered insert a bunch of values.
+    for(int i = 0; i < maxListValue; i += 2){
+        int* newValuePointer = (int*)malloc(sizeof(int));
+        *newValuePointer = i;
+        orderedInsert(store, &myOrderingFunction, newValuePointer);
+    }
+
+    //Now, we check that it has worked!
+    for(int i = 0; i < maxListValue; ++i){
+        int* valuePointer = (int*)skim(store);
+        void* nullPointer = 0;
+        EXPECT_NE(valuePointer, nullPointer);
+        if(valuePointer){
+            EXPECT_EQ(i, *valuePointer);
+            free(valuePointer);
+        }
+    }
+
+    cleanup(store, NULL);
+}
+
+/*
+    Things to check:
+        Ordered insert on an empty list
+
+        Ordered insert on a list of 1
+
+        Ordered insert on a list of 2
+*/
+
 int main(int argc, char** argv){
     testing::InitGoogleTest(&argc, argv);
     int returnCode = RUN_ALL_TESTS();
