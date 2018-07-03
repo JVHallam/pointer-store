@@ -678,6 +678,9 @@ TEST(STORE_HANDLE, insert_on_growing_list){
     for(int i = 0; i < 10; ++i){
         int* skimmedPointer = (int*)pop(store);
         EXPECT_EQ(*skimmedPointer, i);
+        if(skimmedPointer){
+            free(skimmedPointer);
+        }
     }
 
     cleanup(store, &free);
@@ -685,30 +688,55 @@ TEST(STORE_HANDLE, insert_on_growing_list){
 
 //Remove at index testing
 //void* removeAtIndex(STORE_HANDLE* store, int index);
-
 //Try removing from a normal list
 TEST(STORE_HANDLE, remove_from_best_case){
+    //Create the list, storing it's length
     STORE_HANDLE* store = create();
-
     for(int i = 0; i < 10; ++i){
         int* valuePointer = (int*)malloc(sizeof(int));
         *valuePointer = i;
         push(store, valuePointer);
     }
-
     int listLength = length(store);
 
+    //Remove a value.
     int* removedPointer = (int*)removeAtIndex(store, 5);
     EXPECT_EQ(*removedPointer, 5);
-
-    int newListLength = length(store);
-
-    EXPECT_EQ(listLength - 1, newListLength);
-
     free(removedPointer);
 
+    //Check the list lengths
+    int newListLength = length(store);
+    EXPECT_EQ(listLength - 1, newListLength);
+
+    // Clean up
     cleanup(store, &free);
 }
+
+TEST(STORE_HANDLE, remove_from_list_middle){    
+    STORE_HANDLE* store = create();
+
+    for(int i = 0; i < 20; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        push(store, valuePointer);
+    }
+    //The list should be [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
+
+    //WE want to remove the middle of the list.
+    //Remove index 5, 10 times.
+    //We're expecting the value to be 5, 6, 7, 8, 9... 5 + i
+    int targetIndex = 5;
+    for(int i = 0; i < 3; ++i){
+        int* removedPointer = (int*)removeAtIndex(store, targetIndex);
+        int expectedValue = targetIndex + i;
+        EXPECT_EQ(expectedValue, *removedPointer);
+        free(removedPointer);
+    }
+
+    //Then clean up
+    cleanup(store, &free);
+}
+//=MEMORY LEAKS END==========================================================
 
 //Try removing from an empty list
 //Try removing from an index that doesn't exist
@@ -729,7 +757,6 @@ TEST(STORE_HANDLE, remove_from_non_existant_index){
 
     //Now try and remove from 10.
     removedPointer = removeAtIndex(store, 10);
-
     EXPECT_EQ(removedPointer, nullPointer);
 
     cleanup(store, &free);
@@ -738,7 +765,6 @@ TEST(STORE_HANDLE, remove_from_non_existant_index){
 //Try removing the last 3 values from a list
 //      Then push new values in
 //      Then remove them again.
-
 TEST(STORE_HANDLE, remove_at_index_general){
     STORE_HANDLE* store = create();
 
@@ -766,7 +792,6 @@ TEST(STORE_HANDLE, remove_at_index_general){
             }
         }
     }
-
     cleanup(store, &free);
 }
 

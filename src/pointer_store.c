@@ -34,7 +34,12 @@ int push(STORE_HANDLE* userHandle, void* newValue){
 
         //Go to the tail.
         node** tailNode = 0;
+        //Why am i using a forloop here? Why?
         for(tailNode = &(userHandle->tail); *tailNode; tailNode = &((*tailNode)->next));
+        
+        /*
+            tailNode = &(userHandle->tail)
+        */
 
         //Double check that this works.
         (*tailNode) = nextNode;
@@ -255,6 +260,9 @@ int insertBefore(STORE_HANDLE* store, void* yourValuePointer, int index){
 
 //Remove the pointer at the index, then return it.
 //Else, return 0;
+/*
+    THIS FUNCTION CAUSES MEMORY LEAKS!
+*/
 void* removeAtIndex(STORE_HANDLE* store, int index){
     void* removedPointer = 0;
     int storeLength = length(store);
@@ -271,24 +279,26 @@ void* removeAtIndex(STORE_HANDLE* store, int index){
         }
         else{
             node* previousHolder = store->head;
+            node* removedNode = 0;
             int walkerIndex = 1;
             for(node* walker = previousHolder->next; walker; walker = walker->next){
-                // If it's time to insert
+                // If it's time to remove
                 if(walkerIndex == index){
-                    
-                    previousHolder->next = walker->next;
-
-                    //Walker has been removed.
-                    removedPointer = walker->value;
-
-                    free(walker);
-
-                    --(store->length);
+                    removedNode = walker;
                     break;
                 }
                 else{
                     ++walkerIndex;
+                    previousHolder = walker;
                 }
+            }
+
+            //If removedNode
+            if(removedNode){
+                previousHolder->next = removedNode->next;
+                removedPointer = removedNode->value;
+                free(removedNode);
+                --(store->length);
             }
 
         }
