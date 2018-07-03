@@ -37,10 +37,6 @@ int push(STORE_HANDLE* userHandle, void* newValue){
         //Why am i using a forloop here? Why?
         for(tailNode = &(userHandle->tail); *tailNode; tailNode = &((*tailNode)->next));
         
-        /*
-            tailNode = &(userHandle->tail)
-        */
-
         //Double check that this works.
         (*tailNode) = nextNode;
 
@@ -181,29 +177,19 @@ int orderedInsert(STORE_HANDLE* store,  int(*orderingFunction)(void*, void*), vo
                 node* insertionNode = newNode();
                 if(insertionNode){
                     insertionNode->value = yourValuePointer;
-
                     insertionNode->next = (*walker);
-
-                    if((*walker) == store->head){
-                        store->head = insertionNode;
-                    }
-
                     (*walker) = insertionNode;
-
                     wasSuccessful = 1;
+                    ++(store->length);
                 }
 
                 break;
             }
         }   
-
-        //Then assume that we never inserted it yet.
-        if(!wasSuccessful){
-            wasSuccessful = push(store, yourValuePointer);
-        }
     }
-    else{
-        //just insert it at the head
+
+    //If we haven't inserted it yet, it goes on the end.
+    if(!wasSuccessful){
         wasSuccessful = push(store, yourValuePointer);
     }
 
@@ -213,11 +199,10 @@ int orderedInsert(STORE_HANDLE* store,  int(*orderingFunction)(void*, void*), vo
 
 int insertBefore(STORE_HANDLE* store, void* yourValuePointer, int index){
     int wasSuccessful = 0;
-    int maxIndex = length(store) - 1;
+    int maxIndex = (length(store)) ? length(store) - 1 : 0;
 
     if(
         maxIndex >= index
-        || (index == 0)
     ){
         //If we're inserting on an empty list.
         if(!(store->head)){
@@ -226,26 +211,16 @@ int insertBefore(STORE_HANDLE* store, void* yourValuePointer, int index){
         else{
             int walkerIndex = 0;
             for(node** walker = &(store->head); (*walker); walker = &((*walker)->next)){
-                //We're walking
-                int shouldValueBeInsertedNow = walkerIndex == index;
-
-                if(shouldValueBeInsertedNow){
+                
+                if(walkerIndex == index){
                     node* insertionNode = newNode();
                     if(insertionNode){
                         insertionNode->value = yourValuePointer;
-
                         insertionNode->next = (*walker);
-
-                        if((*walker) == store->head){
-                            store->head = insertionNode;
-                        }
-
                         (*walker) = insertionNode;
-
                         wasSuccessful = 1;
                         ++(store->length);
                     }
-
                     break;
                 }
                 else{
@@ -260,9 +235,6 @@ int insertBefore(STORE_HANDLE* store, void* yourValuePointer, int index){
 
 //Remove the pointer at the index, then return it.
 //Else, return 0;
-/*
-    THIS FUNCTION CAUSES MEMORY LEAKS!
-*/
 void* removeAtIndex(STORE_HANDLE* store, int index){
     void* removedPointer = 0;
     int storeLength = length(store);
@@ -278,27 +250,21 @@ void* removeAtIndex(STORE_HANDLE* store, int index){
             removedPointer = pop(store);
         }
         else{
-            node* previousHolder = store->head;
-            node* removedNode = 0;
-            int walkerIndex = 1;
-            for(node* walker = previousHolder->next; walker; walker = walker->next){
-                // If it's time to remove
-                if(walkerIndex == index){
-                    removedNode = walker;
+            //This is the index of the next value in the list, the one after walker.
+            int nextIndex = 1;
+            for(node* walker = store->head; walker; walker = walker->next){
+                if(nextIndex == index){
+                    //Then we remove the next node.
+                    node* temp = walker->next;
+                    walker->next = walker->next->next;
+                    removedPointer = temp->value;
+                    free(temp);
+                    --(store->length);
                     break;
                 }
                 else{
-                    ++walkerIndex;
-                    previousHolder = walker;
+                    ++nextIndex;
                 }
-            }
-
-            //If removedNode
-            if(removedNode){
-                previousHolder->next = removedNode->next;
-                removedPointer = removedNode->value;
-                free(removedNode);
-                --(store->length);
             }
 
         }

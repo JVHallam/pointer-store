@@ -1,7 +1,24 @@
 #ifndef POINTER_STORE_H_
 #define POINTER_STORE_H_
 
-#include <implementation.h>
+typedef struct node_store{
+    struct node_store* next;
+    void* value;
+}node;
+
+//The struct to hold everything. IDK, what it'll look like yet.
+//I just know it'll be nice.
+
+typedef struct{
+    //My handle for future use.
+    node* head;
+    node* tail;
+    int length;
+}pointer_store;
+
+//Initialise a new node
+//Allocates memory on the heap.
+node* newNode();
 
 #define STORE_HANDLE pointer_store
 
@@ -17,7 +34,10 @@
 */
 void cleanup(STORE_HANDLE* userHandle, void(*yourCleanupFunction)(void*));
 
-//Create a brand new handle.
+/*
+    Create a STORE_HANDLE on the heap and return a pointer to it.
+    Initilises all values in the handle to zero.
+*/
 STORE_HANDLE* create();
 
 //=============================================================================================

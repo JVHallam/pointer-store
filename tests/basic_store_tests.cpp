@@ -543,12 +543,19 @@ TEST(STORE_HANDLE, ordered_insertion_on_empty_list){
         int* valuePointer = (int*)malloc(sizeof(int));
         *valuePointer = i;
         orderedInsert(store, &myOrderingFunction, valuePointer);
+        //Check that the length is now 1
+        int listLengthAfterInsert = length(store);
+        EXPECT_EQ(listLengthAfterInsert, 1);
+
         //Now pop it:
         int* poppedValuePointer = (int*)pop(store);
-
-        free(valuePointer);
-
+        int listLengthAfterPop = length(store);
+        EXPECT_EQ(listLengthAfterPop, 0);
         EXPECT_EQ(poppedValuePointer, valuePointer);
+
+        //Make sure something is happening to the list's length value
+        EXPECT_NE(listLengthAfterInsert, listLengthAfterPop);
+        free(valuePointer);
     }
 
     //Now do the same with skim
@@ -586,6 +593,30 @@ TEST(STORE_HANDLE, ordered_insertion_on_small_lists){
             free(poppedValuePointer);
         }
     }
+
+    cleanup(store, &free);
+}
+
+TEST(STORE_HANDLE, ordered_insertion_maintains_length){
+    STORE_HANDLE* store = create();
+
+    for(int i = 0; i < 10; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        push(store, valuePointer);
+    }
+    int lengthAfterPushing = length(store);
+
+    //myOrderingFunction
+    //Now insert the value 5.
+    int* myValuePointer = (int*)malloc(sizeof(int));
+    *myValuePointer = 5;
+    orderedInsert(store, &myOrderingFunction, myValuePointer);
+    int lengthAfterInsertion = length(store);
+
+    EXPECT_EQ(lengthAfterPushing, 10);
+    EXPECT_EQ(lengthAfterInsertion, 11);
+    EXPECT_NE(lengthAfterPushing, lengthAfterInsertion);
 
     cleanup(store, &free);
 }
