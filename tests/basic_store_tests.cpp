@@ -532,14 +532,243 @@ TEST(STORE_HANDLE, ordered_insertion){
     cleanup(store, NULL);
 }
 
+//Ordered insert on an empty list
+//Then popping that value
+//then doing it again
+//then 
+TEST(STORE_HANDLE, ordered_insertion_on_empty_list){
+    STORE_HANDLE* store = create();
+
+    for(int i = 0; i < 3; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        orderedInsert(store, &myOrderingFunction, valuePointer);
+        //Now pop it:
+        int* poppedValuePointer = (int*)pop(store);
+
+        free(valuePointer);
+
+        EXPECT_EQ(poppedValuePointer, valuePointer);
+    }
+
+    //Now do the same with skim
+    for(int i = 0; i < 3; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        orderedInsert(store, &myOrderingFunction, valuePointer);
+        //Now pop it:
+        int* poppedValuePointer = (int*)skim(store);
+
+        free(valuePointer);
+
+        EXPECT_EQ(poppedValuePointer, valuePointer);
+    }
+
+    cleanup(store, &free);
+}
+
+
+//Ordered insert on a list of 1 or 2
+TEST(STORE_HANDLE, ordered_insertion_on_small_lists){
+    STORE_HANDLE* store = create();
+
+    for(int maxLength = 1; maxLength <= 3; ++maxLength){
+        for(int i = 0; i < maxLength; ++i){
+            int* valuePointer = (int*)malloc(sizeof(int));
+            *valuePointer = i;
+            orderedInsert(store, &myOrderingFunction,valuePointer);
+        }
+
+        //Now remove everything, checking that they're in order.
+        for(int i = 0; i < maxLength; ++i){
+            int* poppedValuePointer = (int*)skim(store);
+            EXPECT_EQ(*poppedValuePointer, i);
+            free(poppedValuePointer);
+        }
+    }
+
+    cleanup(store, &free);
+}
+
+//insertBefore testing
+//int insertBefore(STORE_HANDLE* store, void* valuePointer, int index);
+
 /*
-    Things to check:
-        Ordered insert on an empty list
+    Need to write tests for:
+        Insertion on an empty list
 
-        Ordered insert on a list of 1
+        insertion to an index not stated
 
-        Ordered insert on a list of 2
+        insert to a list of lenghts:
+            1, 2, 3
 */
+
+//Best case scenario test.
+TEST(STORE_HANDLE, basic_insertion){
+    STORE_HANDLE* store = create();
+    
+    for(int i = 0; i < 10; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        push(store, valuePointer);
+    }
+
+    //Then insert at index 5.
+    int* insertedValuePointer = (int*)malloc(sizeof(int));
+    *insertedValuePointer = 100;
+    int insertionResult = insertBefore(store, insertedValuePointer, 5);
+    int expectedLength = 10 + 1;
+
+    EXPECT_EQ(insertionResult, 1);
+    EXPECT_EQ(length(store), expectedLength);
+
+    //Retrieve it
+    int* retrievedValuePointer = (int*)getIndex(store, 5);
+
+    EXPECT_EQ(retrievedValuePointer, insertedValuePointer);
+
+    cleanup(store, &free);
+}
+
+//Check that it's returning 0 on failure.
+TEST(STORE_HANDLE, insert_on_empty_list){
+    STORE_HANDLE* store = create();
+
+    int* valuePointer = (int*)malloc(sizeof(int));
+
+    int insertionResult = insertBefore(store, valuePointer, 5);
+    EXPECT_EQ(insertionResult, 0);
+
+    //The list should still be empty
+    int listLength = length(store);
+    EXPECT_EQ(listLength, 0);
+
+    //Now try inserting the same value at index 0
+    insertionResult = insertBefore(store, valuePointer, 0);
+    EXPECT_EQ(insertionResult, 1);
+
+    //The length should increase
+    listLength = length(store);
+    EXPECT_EQ(listLength, 1);
+
+    //Cool
+    cleanup(store, &free);
+}
+
+
+
+//Test that it works for 1, 2, 3
+//We're essentially pushing a value 
+//I don't have a damn clue how this test works.
+TEST(STORE_HANDLE, insert_on_growing_list){
+    STORE_HANDLE* store = create();
+
+    for(int i = 0; i < 10; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+
+        //You have to insert at 0, twice.
+        int insertionIndex = (length(store)) ? 0 : i - 1;
+
+        int result = insertBefore(store, valuePointer, insertionIndex);
+
+        EXPECT_EQ(result, 1);
+    }
+
+    for(int i = 0; i < 10; ++i){
+        int* skimmedPointer = (int*)pop(store);
+        EXPECT_EQ(*skimmedPointer, i);
+    }
+
+    cleanup(store, &free);
+}
+
+//Remove at index testing
+//void* removeAtIndex(STORE_HANDLE* store, int index);
+
+//Try removing from a normal list
+TEST(STORE_HANDLE, remove_from_best_case){
+    STORE_HANDLE* store = create();
+
+    for(int i = 0; i < 10; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        push(store, valuePointer);
+    }
+
+    int listLength = length(store);
+
+    int* removedPointer = (int*)removeAtIndex(store, 5);
+    EXPECT_EQ(*removedPointer, 5);
+
+    int newListLength = length(store);
+
+    EXPECT_EQ(listLength - 1, newListLength);
+
+    free(removedPointer);
+
+    cleanup(store, &free);
+}
+
+//Try removing from an empty list
+//Try removing from an index that doesn't exist
+TEST(STORE_HANDLE, remove_from_non_existant_index){
+    STORE_HANDLE* store = create();
+
+    void* removedPointer = removeAtIndex(store, 0);
+    void* nullPointer = 0;
+
+    EXPECT_EQ(removedPointer, nullPointer);
+
+    //Now make a list and try again
+    for(int i = 0; i < 10; ++i){
+        int* valuePointer = (int*)malloc(sizeof(int));
+        *valuePointer = i;
+        push(store, valuePointer);
+    }
+
+    //Now try and remove from 10.
+    removedPointer = removeAtIndex(store, 10);
+
+    EXPECT_EQ(removedPointer, nullPointer);
+
+    cleanup(store, &free);
+}
+
+//Try removing the last 3 values from a list
+//      Then push new values in
+//      Then remove them again.
+
+TEST(STORE_HANDLE, remove_at_index_general){
+    STORE_HANDLE* store = create();
+
+    int maxLength = 10;
+    void* nullPointer = 0;
+
+    for(int i = 0; i <= maxLength; ++i){
+        //Make the list maxLength in length
+        for(int j = 0; j < i; ++j){
+            int* valuePointer = (int*)malloc(sizeof(int));
+            *valuePointer = j;
+            push(store, valuePointer);
+        }
+
+        int listLength = length(store);
+        EXPECT_EQ(i, listLength);
+
+        //Now, remove all the items from the list.
+        for(int j = 0; j < i; ++j){
+            int lastIndex = length(store) - 1;
+            int* valuePointer = (int*)removeAtIndex(store, lastIndex);
+            EXPECT_NE(valuePointer, nullPointer);
+            if(valuePointer){
+                free(valuePointer);
+            }
+        }
+    }
+
+    cleanup(store, &free);
+}
 
 int main(int argc, char** argv){
     testing::InitGoogleTest(&argc, argv);

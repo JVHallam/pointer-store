@@ -74,99 +74,23 @@ void forEach(STORE_HANDLE* store, void(*yourFunction)(void*, void*), void* yourV
 int orderedInsert(STORE_HANDLE* store,  int(*orderingFunction)(void*, void*), void* yourValuePointer);
 
 /*
-    insert a value index.
+    Insert a value BEFORE and index so it becomes the value at that index
+    [0, 1, 2, 3, 4, 5, 6]
 
-    return int => 1 if successful, 0 otherwise.
+    If you insert the value 10 before index = 4;
+
+    [0, 1, 2, 3, 10, 4, 5, 6]
+
+    You're inserting a value before an index, so it becomes that index.
+
+    You CANNOT use this function to push a value onto the end of a list.
 */
-int insertIndex(STORE_HANDLE* store, void* valuePointer, int index);
+int insertBefore(STORE_HANDLE* store, void* valuePointer, int index);
 
 /*
     Remove a value from the index specified.
     If it's successful, return the value pointer, else return null.
 */
-void* removeIndex(STORE_HANDLE* store, int index);
-
-
-/*
-These are ultimately the last 2 functions that i would need to deem this lib complete.
-Anything else is just quality of life. Anything else can easily be done.
-    Ordered Insert:
-        I'm going to want to insert values, into locations, based on their values.
-
-        If i have a list:
-            1, 2, 4, 6, 8, 9, 10;
-
-        I want it to insert 3, before 4 and after 2.
-
-        We'll probably need something that takes a comparison function:
-
-        orderedInsert(list, value, comparisonFunction);
-
-        bool shouldBeInsertedBefore(void* listValue, void* yourValue){
-            if list value is bigger, don't insert, return false.
-
-            if list value is smaller or the same, insert here, return true.
-        }
-
-        This is an essential function to implement. It also allows for insertion sorting by the user.
-        A combination between this and forEach means that we can implement an insertion sort quite easily.
-
-    Insert at index
-        This can be added without much hassle
-
-    Remove from index
-        Remove a value from an index, shuffle the list to fit.
-
-Then there's the world of splitting and joining:
-    Concat(leftList, rightList);
-        An explicit way of doing this will be nice. 
-        Although it would just be a case of:
-            push(a, Skim(b))
-
-    Other functions:
-        Due to the fact that forEach is pass by reference and 
-        "Insert at Index" and "Remove from Index" will also exist,
-        The rest of these functions may actually be uneeded in the implementation
-        as of right now.
-
-        They'd just be quality of life functions, rather than essentials.
-
-
-        slicing:
-            This would be a case of splitting the list into 2.
-            The original list, minus the sliced section.
-            It wouldn't be intuitive, so i might give this one a pass.
-
-        filter
-            Are we copying the filtered result into another list
-            (This can be done with forEach, more or less)
-
-        reduce
-            Are we reducing and discarding the list?
-            (forEach)
-
-        CastToArray
-            This is going to be awkard, imho.
-            It will create a void* array, or a void** array.
-            Making this function alot less useful.
-
-            And with the fact it's storing void*, if you forget
-            the size of the variables or the vars are mixed, it can lead
-            to some serious issues.
-
-        Map / Transform
-            Are we mapping onto ourselves, or another list?
-            If we have forEach, we kinda have this already.
-            Which bumps it way down.
-
-    Functions that might be nice later:
-        Copy value at index
-            This can be done manually. Doesn't really need a function.
-
-        slicing
-            You'll have your own slicing functions at this point.
-            An implementation of this as a single function would be more efficient then the 
-            "Insert at" and "Remove from" functions, but i don't know how i want that implemented yet.
-*/
+void* removeAtIndex(STORE_HANDLE* store, int index);
 
 #endif

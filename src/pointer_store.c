@@ -1,20 +1,15 @@
 #include <pointer_store.h>
 #include <stdlib.h>
 
-//Remember to remove this.
-#include <stdio.h>
-
+//Just initalise a node
 STORE_HANDLE* create(){
     STORE_HANDLE* userHandle = (STORE_HANDLE*)malloc(sizeof(STORE_HANDLE));
-
     userHandle->head = 0;
     userHandle->tail = 0;
     userHandle->length = 0;
-
     return userHandle;
 }
 
-//ps_node
 void cleanup(STORE_HANDLE* userHandle, void(*your_cleanup_function)(void*)){
     //Go through the list.
     for(node* walker = userHandle->head; walker;){
@@ -39,9 +34,7 @@ int push(STORE_HANDLE* userHandle, void* newValue){
 
         //Go to the tail.
         node** tailNode = 0;
-
-        //God damn i love me a bodyless for loop.
-        for(tailNode = &userHandle->tail; *tailNode; tailNode = &((*tailNode)->next));
+        for(tailNode = &(userHandle->tail); *tailNode; tailNode = &((*tailNode)->next));
 
         //Double check that this works.
         (*tailNode) = nextNode;
@@ -210,4 +203,96 @@ int orderedInsert(STORE_HANDLE* store,  int(*orderingFunction)(void*, void*), vo
     }
 
     return wasSuccessful;
+}
+
+
+int insertBefore(STORE_HANDLE* store, void* yourValuePointer, int index){
+    int wasSuccessful = 0;
+    int maxIndex = length(store) - 1;
+
+    if(
+        maxIndex >= index
+        || (index == 0)
+    ){
+        //If we're inserting on an empty list.
+        if(!(store->head)){
+            wasSuccessful = push(store, yourValuePointer);
+        }
+        else{
+            int walkerIndex = 0;
+            for(node** walker = &(store->head); (*walker); walker = &((*walker)->next)){
+                //We're walking
+                int shouldValueBeInsertedNow = walkerIndex == index;
+
+                if(shouldValueBeInsertedNow){
+                    node* insertionNode = newNode();
+                    if(insertionNode){
+                        insertionNode->value = yourValuePointer;
+
+                        insertionNode->next = (*walker);
+
+                        if((*walker) == store->head){
+                            store->head = insertionNode;
+                        }
+
+                        (*walker) = insertionNode;
+
+                        wasSuccessful = 1;
+                        ++(store->length);
+                    }
+
+                    break;
+                }
+                else{
+                    ++walkerIndex;
+                }
+            } 
+        }  
+    }
+
+    return wasSuccessful;
+}
+
+//Remove the pointer at the index, then return it.
+//Else, return 0;
+void* removeAtIndex(STORE_HANDLE* store, int index){
+    void* removedPointer = 0;
+    int storeLength = length(store);
+    int maxIndex = storeLength - 1;
+
+    if(storeLength && (maxIndex >= index)){
+        //If it's 0, we're just skimming
+        if(!index){
+            removedPointer = skim(store);
+        }
+        //If it's the end, it's just popping
+        else if(index == maxIndex){
+            removedPointer = pop(store);
+        }
+        else{
+            node* previousHolder = store->head;
+            int walkerIndex = 1;
+            for(node* walker = previousHolder->next; walker; walker = walker->next){
+                // If it's time to insert
+                if(walkerIndex == index){
+                    
+                    previousHolder->next = walker->next;
+
+                    //Walker has been removed.
+                    removedPointer = walker->value;
+
+                    free(walker);
+
+                    --(store->length);
+                    break;
+                }
+                else{
+                    ++walkerIndex;
+                }
+            }
+
+        }
+    }
+
+    return removedPointer;
 }
