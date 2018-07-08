@@ -32,14 +32,13 @@ int push(STORE_HANDLE* userHandle, void* newValue){
     if(nextNode){
         nextNode->value = newValue;
 
-        //Go to the tail.
-        node** tailNode = 0;
-        //Why am i using a forloop here? Why?
-        for(tailNode = &(userHandle->tail); *tailNode; tailNode = &((*tailNode)->next));
-        
-        //Double check that this works.
-        (*tailNode) = nextNode;
+        if(userHandle->tail){
+            userHandle->tail->next = nextNode;
+        }
 
+        userHandle->tail = nextNode;
+
+        //Update the head in the case of now head.
         if(!(userHandle->head)){
             userHandle->head = userHandle->tail;
         }
