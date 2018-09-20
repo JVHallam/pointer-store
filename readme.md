@@ -1,6 +1,6 @@
 # Pointer Store
 
-This is the pointer_store. A project Written in C, to be a reasonably minimal storage system.
+This is the pointer_store. A project Written in C, to be a simple to use, generic, storage system.
 
 It had to do the following (In order of priority):
 * Be orderable and allow general insertions at any point
@@ -35,10 +35,3 @@ The main project has no dependencies.
 
 To run the C++ unit tests, you must pull the sub modules and build the google_test binaries.
 Then, run them.
-
-# Future Development
-
-This project is still in development. The features that i need to implement before i'll consider this ready for use is:
-* Ordered Inserting (Inserting a value, in the point of the list where it belongs, with regards to a sorting function)
-* Insert at index   =>  Inserts an element at the index determined.
-* Remove from index =>  removes an element from the index determined.
