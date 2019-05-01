@@ -1,6 +1,6 @@
-# Pointer Store
+# pointer-store
 
-This is the pointer_store. A project Written in C, to be a simple to use, generic, storage system.
+This is the pointer-store. A project Written in C, to be a simple to use, generic, storage system.
 
 It had to do the following (In order of priority):
 * Be orderable and allow general insertions at any point
